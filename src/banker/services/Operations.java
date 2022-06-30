@@ -72,11 +72,19 @@ public class Operations extends Skeleton {
 
     @Override
     public Bank findBankByName(String name) {
-        return null;
+        ArrayList<Bank> bank = new ArrayList<>();
+        banks.forEach(bank1 -> {
+            if (Objects.equals(bank1.getName(), name)) bank.add(bank1);
+        });
+        return bank.get(0);
     }
 
     @Override
     public Bank findBankByUuid(Integer uuid) {
-        return null;
+        ArrayList<Bank> bank = new ArrayList<>();
+        banks.forEach(bank1 -> {
+            if (Objects.equals(bank1.getUuid(), uuid)) bank.add(bank1);
+        });
+        return bank.get(0);
     }
 }

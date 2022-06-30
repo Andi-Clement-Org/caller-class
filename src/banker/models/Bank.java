@@ -27,4 +27,12 @@ public class Bank {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "Bank{" +
+                "uuid=" + uuid +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
