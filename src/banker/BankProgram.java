@@ -25,7 +25,7 @@ public class BankProgram {
         // seed all customers to arraylist
         program.addCustomers();
 
-        Customer customer = program.findCustomer("name", "Philip Jones");
+        Customer customer = program.findCustomer("name", "Philips Jones");
         System.out.printf("This is Customer %s", (customer != null) ? customer.getFull_name() : "No name");
     }
 

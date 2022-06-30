@@ -10,8 +10,8 @@ public abstract class Skeleton {
     abstract Account saveMoney(Bank bank, Customer customer, double amount);
     abstract Customer findCustomerByEmail(String email);
     abstract Customer findCustomerByFullName(String fullName);
-    abstract Customer findCustomerByUuid(String uuid);
+    abstract Customer findCustomerByUuid(Integer uuid);
     abstract Account getUserAccountInfo(String customerEmail, String bankName);
     abstract Bank findBankByName(String name);
-    abstract Bank findBankByUuid(String uuid);
+    abstract Bank findBankByUuid(Integer uuid);
 }

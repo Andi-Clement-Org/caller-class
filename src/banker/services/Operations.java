@@ -40,33 +40,29 @@ public class Operations extends Skeleton {
 
     @Override
     public Customer findCustomerByEmail(String email) {
-        AtomicReference<Customer> customer = null;
+        ArrayList<Customer> customer = new ArrayList<>();
         customers.forEach(customer1 -> {
-            if (customer1.getEmail().equals(email)) {
-                assert false;
-                customer.set(customer1);
-            }
+            if (Objects.equals(customer1.getEmail(), email)) customer.add(customer1);
         });
-        assert false;
-        return customer.get();
+        return customer.get(0);
     }
 
     @Override
     public Customer findCustomerByFullName(String fullName) {
         ArrayList<Customer> customer = new ArrayList<>();
         customers.forEach(customer1 -> {
-            System.out.println("Happy to find you Mr: " + customer1.getFull_name() + " ::: " + fullName);
-            if (Objects.equals(customer1.getFull_name(), fullName)) {
-                System.out.println("I am here");
-                customer.add(customer1);
-            }
+            if (Objects.equals(customer1.getFull_name(), fullName)) customer.add(customer1);
         });
-        return null;
+        return customer.get(0);
     }
 
     @Override
-    public Customer findCustomerByUuid(String uuid) {
-        return null;
+    public Customer findCustomerByUuid(Integer uuid) {
+        ArrayList<Customer> customer = new ArrayList<>();
+        customers.forEach(customer1 -> {
+            if (Objects.equals(customer1.getUuid(), uuid)) customer.add(customer1);
+        });
+        return customer.get(0);
     }
 
     @Override
@@ -80,7 +76,7 @@ public class Operations extends Skeleton {
     }
 
     @Override
-    public Bank findBankByUuid(String uuid) {
+    public Bank findBankByUuid(Integer uuid) {
         return null;
     }
 }
