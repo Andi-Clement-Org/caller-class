@@ -8,6 +8,7 @@ import banker.services.Operations;
 import banker.services.Utils;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * //TODO
@@ -15,6 +16,7 @@ import java.util.ArrayList;
  */
 
 public class BankProgram {
+
 
     private ArrayList<Customer> allCustomers = new ArrayList<>();
     private ArrayList<Bank> allBanks = new ArrayList<>();
@@ -27,14 +29,21 @@ public class BankProgram {
     }
 
     public static void main(String[] args) {
+
+        System.out.println("Hi, I am Reno \n I will be assisting you today");
         BankProgram program = new BankProgram();
         // seed all customers to arraylist
         program.addCustomers();
         // seed all banks to arraylist
         program.addBanks();
 
-        Customer customer = program.findCustomer("name", "Philips Jones");
-        Bank bank = program.findBank("name", "Bank of America");
+        System.out.println("Input a name: ");
+        Scanner scan = new Scanner(System.in);
+        String input = scan.nextLine();
+        Customer customer = program.findCustomer("name", input);
+        System.out.println("Input a bank: ");
+        String secInput = scan.nextLine();
+        Bank bank = program.findBank("name", secInput);
 
         Account customerAccount = program.createAccount(bank, customer);
 
