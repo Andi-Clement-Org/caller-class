@@ -1,8 +1,13 @@
 package banker.services;
 
 import java.util.Random;
+import java.util.Scanner;
 
 public class Utils {
+
+    public Scanner scanner() {
+        return new Scanner(System.in);
+    }
 
     public static String generateRandomAlphaNumeric() {
         int leftLimit = 48;
@@ -18,6 +23,16 @@ public class Utils {
 
     public static Integer generateUuid(int min, int max) {
         return (int) (Math.random() * (max - min + 1) + min);
+    }
+
+    public static String generateCustomerEmailAddress(String full_name, String provider) {
+        full_name = full_name.replaceAll(" ", "-").toLowerCase().trim();
+        return full_name + "@" + provider + ".com";
+    }
+
+    public static String pickEmailProvider() {
+        Random random = new Random();
+        return Constants.EMAIL_PROVIDERS[random.nextInt(Constants.EMAIL_PROVIDERS.length)];
     }
 
 }

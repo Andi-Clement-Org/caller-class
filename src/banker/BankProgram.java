@@ -18,46 +18,101 @@ import java.util.Scanner;
 public class BankProgram {
 
 
-    private ArrayList<Customer> allCustomers = new ArrayList<>();
-    private ArrayList<Bank> allBanks = new ArrayList<>();
-    private ArrayList<Account> accounts = new ArrayList<>();
+    private final ArrayList<Customer> allCustomers = new ArrayList<>();
+    private final ArrayList<Bank> allBanks = new ArrayList<>();
+    private final ArrayList<Account> accounts = new ArrayList<>();
 
     private Operations operations;
+    private final Utils utils;
 
     public BankProgram() {
         operations = new Operations();
+        utils = new Utils();
     }
 
     public static void main(String[] args) {
 
-        System.out.println("Hi, I am Reno \n I will be assisting you today");
         BankProgram program = new BankProgram();
-        // seed all customers to arraylist
-        program.addCustomers();
-        // seed all banks to arraylist
-        program.addBanks();
+        program.program();
 
-        System.out.println("Input a name: ");
-        Scanner scan = new Scanner(System.in);
-        String input = scan.nextLine();
-        Customer customer = program.findCustomer("name", input);
-        System.out.println("Input a bank: ");
-        String secInput = scan.nextLine();
-        Bank bank = program.findBank("name", secInput);
-
-        Account customerAccount = program.createAccount(bank, customer);
-
-        System.out.printf("This is the new account Information \n %s", customerAccount.toString());
+//        System.out.println("Input a name: ");
+//        Scanner scan = new Scanner(System.in);
+//        String input = scan.nextLine();
+//        Customer customer = program.findCustomer("name", input);
+//        System.out.println("Input a bank: ");
+//        String secInput = scan.nextLine();
+//        Bank bank = program.findBank("name", secInput);
+//
+//        Account customerAccount = program.createAccount(bank, customer);
+//
+//        System.out.printf("This is the new account Information \n %s", customerAccount.toString());
 
     }
 
-    private void addCustomers() {
-        Customer customerOne = operations.newCustomer(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "John Miller", Utils.generateRandomAlphaNumeric() + "@gmail.com");
-        Customer customerTwo = operations.newCustomer(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "Philips Jones", Utils.generateRandomAlphaNumeric() + "@gmail.com");
-        Customer customerThree = operations.newCustomer(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "Kingsley Wills", Utils.generateRandomAlphaNumeric() + "@gmail.com");
-        Customer customerFour = operations.newCustomer(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "Maria Smith", Utils.generateRandomAlphaNumeric() + "@gmail.com");
-        Customer customerFive = operations.newCustomer(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "Darlene James", Utils.generateRandomAlphaNumeric() + "@gmail.com");
-        Customer customerSix = operations.newCustomer(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "Matthew Tera", Utils.generateRandomAlphaNumeric() + "@gmail.com");
+    public void program() {
+        System.out.printf("Hi, I am %s, I will be assisting you today." +
+                "\nWhat would you like to to do?" +
+                "\n1.\tSeed Bank Data." +
+                "\n2.\tCreate Customer Data." +
+                "\n3.\tCreate Account Information." +
+                "\n0.\tTo Exit the program.\n\n", Constants.PROGRAM_ASSISTANTS_NAME);
+        try {
+            chosenOptions();
+        }
+        catch (Exception ex) {
+            System.err.printf("You just encountered an error %s \n", ex.getMessage());
+            program();
+        }
+    }
+
+    private void chosenOptions() throws Exception {
+        int selectedOption = utils.scanner().nextInt();
+        switch (selectedOption) {
+            case 0:
+                System.exit(0);
+                break;
+            case 1:
+                seed();
+                program();
+                break;
+            case 2:
+                processCustomerCreation();
+                break;
+            case 3:
+                // process and handle customer creation
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void processCustomerCreation() throws Exception {
+        System.out.println("Enter Full Name");
+        String scannedName = utils.scanner().nextLine();
+        if ("".equals(scannedName)) {
+            throw new Exception("Please enter a valid name");
+        }
+
+        Customer newCustomer = operations.newCustomer(getFreshUuid(), scannedName, Utils.generateCustomerEmailAddress(scannedName, Utils.pickEmailProvider()));
+        allCustomers.add(newCustomer);
+        System.out.printf("%s was added successfully.\n", newCustomer.getFull_name());
+        // show message and back to program
+        Thread.sleep(1000);
+        program();
+    }
+
+    private void seed() throws Exception {
+        addCustomers();
+        addBanks();
+    }
+
+    private void addCustomers() throws Exception {
+        Customer customerOne = operations.newCustomer(getFreshUuid(), "John Miller", Utils.generateCustomerEmailAddress("John Miller", Utils.pickEmailProvider()));
+        Customer customerTwo = operations.newCustomer(getFreshUuid(), "Philips Jones", Utils.generateCustomerEmailAddress("Philip Jones", Utils.pickEmailProvider()));
+        Customer customerThree = operations.newCustomer(getFreshUuid(), "Kingsley Wills", Utils.generateCustomerEmailAddress("Kingsley Wills", Utils.pickEmailProvider()));
+        Customer customerFour = operations.newCustomer(getFreshUuid(), "Maria Smith", Utils.generateCustomerEmailAddress("Maria Smith", Utils.pickEmailProvider()));
+        Customer customerFive = operations.newCustomer(getFreshUuid(), "Darlene James", Utils.generateCustomerEmailAddress("Darlene James", Utils.pickEmailProvider()));
+        Customer customerSix = operations.newCustomer(getFreshUuid(), "Matthew Tera", Utils.generateCustomerEmailAddress("Matthew Tera", Utils.pickEmailProvider()));
         allCustomers.add(customerOne);
         allCustomers.add(customerTwo);
         allCustomers.add(customerThree);
@@ -67,13 +122,13 @@ public class BankProgram {
     }
 
     public void addBanks() {
-        Bank bankOne = operations.newBank(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "Zenith Bank");
-        Bank bankTwo = operations.newBank(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "Wema Bank");
-        Bank bankThree = operations.newBank(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "GT Bank");
-        Bank bankFour = operations.newBank(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "UBA");
-        Bank bankFive = operations.newBank(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "First Bank");
-        Bank bankSix = operations.newBank(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "Bank of America");
-        Bank bankSeven = operations.newBank(Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID), "Fidelity Bank");
+        Bank bankOne = operations.newBank(getFreshUuid(), "Zenith Bank");
+        Bank bankTwo = operations.newBank(getFreshUuid(), "Wema Bank");
+        Bank bankThree = operations.newBank(getFreshUuid(), "GT Bank");
+        Bank bankFour = operations.newBank(getFreshUuid(), "UBA");
+        Bank bankFive = operations.newBank(getFreshUuid(), "First Bank");
+        Bank bankSix = operations.newBank(getFreshUuid(), "Bank of America");
+        Bank bankSeven = operations.newBank(getFreshUuid(), "Fidelity Bank");
         allBanks.add(bankOne);
         allBanks.add(bankTwo);
         allBanks.add(bankThree);
@@ -99,6 +154,10 @@ public class BankProgram {
         if ("uuid".equals(findBy)) return operations.findBankByUuid(Integer.parseInt(findValue));
         if ("name".equals(findBy)) return operations.findBankByName(findValue);
         return null;
+    }
+
+    private Integer getFreshUuid () {
+        return Utils.generateUuid(Constants.STARTING_UUID, Constants.ENDING_UUID);
     }
 
 }

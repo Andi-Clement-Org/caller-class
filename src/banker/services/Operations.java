@@ -24,7 +24,9 @@ public class Operations extends Skeleton {
     }
 
     @Override
-    public Customer newCustomer(Integer uuid, String full_name, String email) {
+    public Customer newCustomer(Integer uuid, String full_name, String email) throws Exception {
+        if (findCustomerByEmail(email) != null) throw new Exception("You cannot have duplicate email entries");
+        if (findCustomerByFullName(full_name) != null) throw new Exception("You cannot have duplicate full name entries");
         return new Customer(uuid, full_name, email);
     }
 

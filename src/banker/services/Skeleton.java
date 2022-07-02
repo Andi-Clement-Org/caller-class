@@ -5,7 +5,7 @@ import banker.models.Bank;
 import banker.models.Customer;
 
 public abstract class Skeleton {
-    abstract Customer newCustomer(Integer uuid, String full_name, String email);
+    abstract Customer newCustomer(Integer uuid, String full_name, String email) throws Exception;
     abstract Bank newBank(Integer uuid, String name);
     abstract Account saveMoney(Bank bank, Customer customer, double amount);
     abstract Customer findCustomerByEmail(String email);
