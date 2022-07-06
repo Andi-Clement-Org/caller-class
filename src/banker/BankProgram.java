@@ -80,6 +80,7 @@ public class BankProgram {
                 break;
             case 3:
                 // process and handle customer creation
+                processAccountInfo();
                 break;
             default:
                 break;
@@ -92,14 +93,37 @@ public class BankProgram {
         if ("".equals(scannedName)) {
             throw new Exception("Please enter a valid name");
         }
-
-        Customer newCustomer = operations.newCustomer(getFreshUuid(), scannedName, Utils.generateCustomerEmailAddress(scannedName, Utils.pickEmailProvider()));
+        int Uuid = getFreshUuid();
+       // System.out.println(allCustomers);
+        System.out.println("You're Uuid is: " + Uuid);
+        Customer newCustomer = operations.newCustomer(Uuid, scannedName, Utils.generateCustomerEmailAddress(scannedName, Utils.pickEmailProvider()));
         allCustomers.add(newCustomer);
         System.out.printf("%s was added successfully.\n", newCustomer.getFull_name());
+        processAccountInfo();
+        System.out.println(allBanks);
         // show message and back to program
         Thread.sleep(1000);
         program();
     }
+    private void processAccountInfo() throws Exception{
+        System.out.println("Please input your Name and Uuid: " );
+        Scanner scanx = new Scanner(System.in);
+        String Name = scanx.next();
+        addBanks();
+        System.out.println("Select a bank: \n 0 Zenith Bank \n 1 Wema Bank \n 2 GT Bank \n 3 UBA \n 4 First Bank \n 5 Bank of America \n 6 Fidelity Bank");
+        int input = scanx.nextInt();
+        addCustomers();
+        Customer userName = operations.newCustomer(getFreshUuid(), Name, Utils.generateCustomerEmailAddress(Name, Utils.pickEmailProvider()));
+        if(input == 0) createAccount(allBanks.get(0),userName);
+        if(input == 1) createAccount(allBanks.get(1),userName);
+        if(input == 2) createAccount(allBanks.get(2),userName);
+        if(input == 3) createAccount(allBanks.get(3),userName);
+        if(input == 4) createAccount(allBanks.get(4),userName);
+        if(input == 5) createAccount(allBanks.get(5),userName);
+        if(input == 6) createAccount(allBanks.get(6),userName);
+        else throw new Exception("Not a valid Bank");
+    }
+
 
     private void seed() throws Exception {
         addCustomers();
@@ -139,7 +163,7 @@ public class BankProgram {
     }
 
     public Account createAccount(Bank bank, Customer customer) {
-        return new Account(bank, customer, 0);
+        return new Account(bank, customer,0);
     }
 
     private Customer findCustomer(String findBy, String findValue) {
