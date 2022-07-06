@@ -31,35 +31,26 @@ public class BankProgram {
     }
 
     public static void main(String[] args) {
-
         BankProgram program = new BankProgram();
         program.program();
-
-//        System.out.println("Input a name: ");
-//        Scanner scan = new Scanner(System.in);
-//        String input = scan.nextLine();
-//        Customer customer = program.findCustomer("name", input);
-//        System.out.println("Input a bank: ");
-//        String secInput = scan.nextLine();
-//        Bank bank = program.findBank("name", secInput);
-//
-//        Account customerAccount = program.createAccount(bank, customer);
-//
-//        System.out.printf("This is the new account Information \n %s", customerAccount.toString());
-
     }
 
     public void program() {
-        System.out.printf("Hi, I am %s, I will be assisting you today." +
-                "\nWhat would you like to to do?" +
-                "\n1.\tSeed Bank Data." +
-                "\n2.\tCreate Customer Data." +
-                "\n3.\tCreate Account Information." +
-                "\n0.\tTo Exit the program.\n\n", Constants.PROGRAM_ASSISTANTS_NAME);
+        System.out.printf("""
+                Hi, I am %s, I will be assisting you today.
+                What would you like to to do?
+                1.\tSeed Bank Data.
+                2.\tCreate Customer Data.
+                3.\tCreate Account Information.
+                4.\tView Customer Information.
+                0.\tTo Exit the program.
+
+                """, Constants.PROGRAM_ASSISTANTS_NAME);
         try {
             chosenOptions();
         }
         catch (Exception ex) {
+            ex.printStackTrace();
             System.err.printf("You just encountered an error %s \n", ex.getMessage());
             program();
         }
@@ -68,22 +59,16 @@ public class BankProgram {
     private void chosenOptions() throws Exception {
         int selectedOption = utils.scanner().nextInt();
         switch (selectedOption) {
-            case 0:
-                System.exit(0);
-                break;
-            case 1:
+            case 0 -> System.exit(0);
+            case 1 -> {
                 seed();
                 program();
-                break;
-            case 2:
-                processCustomerCreation();
-                break;
-            case 3:
-                // process and handle customer creation
-                processAccountInfo();
-                break;
-            default:
-                break;
+            }
+            case 2 -> processCustomerCreation();
+            case 3 -> processAccountInfo();
+            case 4 -> viewCustomerInformation();
+            default -> {
+            }
         }
     }
 
@@ -93,35 +78,66 @@ public class BankProgram {
         if ("".equals(scannedName)) {
             throw new Exception("Please enter a valid name");
         }
-        int Uuid = getFreshUuid();
-       // System.out.println(allCustomers);
-        System.out.println("You're Uuid is: " + Uuid);
-        Customer newCustomer = operations.newCustomer(Uuid, scannedName, Utils.generateCustomerEmailAddress(scannedName, Utils.pickEmailProvider()));
+        operations = new Operations(allCustomers, allBanks, accounts);
+        Customer newCustomer = operations.newCustomer(getFreshUuid(), scannedName, Utils.generateCustomerEmailAddress(scannedName, Utils.pickEmailProvider()));
         allCustomers.add(newCustomer);
         System.out.printf("%s was added successfully.\n", newCustomer.getFull_name());
         processAccountInfo();
-        System.out.println(allBanks);
         // show message and back to program
         Thread.sleep(1000);
         program();
     }
-    private void processAccountInfo() throws Exception{
-        System.out.println("Please input your Name and Uuid: " );
-        Scanner scanx = new Scanner(System.in);
-        String Name = scanx.next();
-        addBanks();
-        System.out.println("Select a bank: \n 0 Zenith Bank \n 1 Wema Bank \n 2 GT Bank \n 3 UBA \n 4 First Bank \n 5 Bank of America \n 6 Fidelity Bank");
-        int input = scanx.nextInt();
-        addCustomers();
-        Customer userName = operations.newCustomer(getFreshUuid(), Name, Utils.generateCustomerEmailAddress(Name, Utils.pickEmailProvider()));
-        if(input == 0) createAccount(allBanks.get(0),userName);
-        if(input == 1) createAccount(allBanks.get(1),userName);
-        if(input == 2) createAccount(allBanks.get(2),userName);
-        if(input == 3) createAccount(allBanks.get(3),userName);
-        if(input == 4) createAccount(allBanks.get(4),userName);
-        if(input == 5) createAccount(allBanks.get(5),userName);
-        if(input == 6) createAccount(allBanks.get(6),userName);
-        else throw new Exception("Not a valid Bank");
+
+    private void processAccountInfo() throws Exception {
+        System.out.println("Please Enter your name or Email address to create an account" );
+        String identification = utils.scanner().nextLine();
+
+        Customer customerIdentity;
+        operations = new Operations(allCustomers, allBanks, accounts);
+
+        if (Utils.isEmailAddress(identification, Constants.EMAIL_REGEX)) customerIdentity = operations.findCustomerByEmail(identification);
+        else customerIdentity = operations.findCustomerByFullName(identification);
+
+        if (customerIdentity == null) throw new Exception("Cannot find this customer");
+
+        System.out.println("Please Select banks from options below:");
+
+        for (int i = 0; i < allBanks.size(); i++) {
+            System.out.printf("%d %s \n", i+1, allBanks.get(i).getName());
+        }
+        System.out.println();
+
+        int input = utils.scanner().nextInt();
+        // verify if the bank index
+        createAccount(allBanks.get(input-1), customerIdentity);
+
+        program();
+    }
+
+    private void viewCustomerInformation() throws Exception {
+        System.out.println("Please Enter your name or Email address to get details" );
+        String identification = utils.scanner().nextLine();
+
+        Customer customerIdentity;
+        operations = new Operations(allCustomers, allBanks, accounts);
+
+        if (Utils.isEmailAddress(identification, Constants.EMAIL_REGEX)) customerIdentity = operations.findCustomerByEmail(identification);
+        else customerIdentity = operations.findCustomerByFullName(identification);
+
+        if (customerIdentity == null) throw new Exception("Cannot find this customer");
+
+        // find the account information using the customer object
+
+        ArrayList<Account> myAccounts;
+        if (Utils.isEmailAddress(identification, Constants.EMAIL_REGEX)) myAccounts = operations.getCustomerAccountEmail(identification);
+        else myAccounts = operations.getCustomerAccountName(identification);
+
+        for (Account myAccount : myAccounts) {
+            System.out.printf("Bank: %s. \nCustomer: %s. \nBalance: %f \n\n", myAccount.getBank().getName(), myAccount.getCustomer().getFull_name(), myAccount.getBalance());
+        }
+
+        System.exit(0);
+
     }
 
 

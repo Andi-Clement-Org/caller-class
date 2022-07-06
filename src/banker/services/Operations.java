@@ -25,8 +25,10 @@ public class Operations extends Skeleton {
 
     @Override
     public Customer newCustomer(Integer uuid, String full_name, String email) throws Exception {
-        if (findCustomerByEmail(email) != null) throw new Exception("You cannot have duplicate email entries");
-        if (findCustomerByFullName(full_name) != null) throw new Exception("You cannot have duplicate full name entries");
+        if (this.customers != null) {
+            if (findCustomerByEmail(email) != null) throw new Exception("You cannot have duplicate email entries");
+            if (findCustomerByFullName(full_name) != null) throw new Exception("You cannot have duplicate full name entries");
+        }
         return new Customer(uuid, full_name, email);
     }
 
@@ -46,7 +48,7 @@ public class Operations extends Skeleton {
         customers.forEach(customer1 -> {
             if (Objects.equals(customer1.getEmail(), email)) customer.add(customer1);
         });
-        return customer.get(0);
+        return customer.size() > 0 ? customer.get(0) : null;
     }
 
     @Override
@@ -55,7 +57,7 @@ public class Operations extends Skeleton {
         customers.forEach(customer1 -> {
             if (Objects.equals(customer1.getFull_name(), fullName)) customer.add(customer1);
         });
-        return customer.get(0);
+        return customer.size() > 0 ? customer.get(0) : null;
     }
 
     @Override
@@ -64,7 +66,7 @@ public class Operations extends Skeleton {
         customers.forEach(customer1 -> {
             if (Objects.equals(customer1.getUuid(), uuid)) customer.add(customer1);
         });
-        return customer.get(0);
+        return customer.size() > 0 ? customer.get(0) : null;
     }
 
     @Override
@@ -88,5 +90,23 @@ public class Operations extends Skeleton {
             if (Objects.equals(bank1.getUuid(), uuid)) bank.add(bank1);
         });
         return bank.get(0);
+    }
+
+    @Override
+    public ArrayList<Account> getCustomerAccountEmail(String customerEmail) {
+        ArrayList<Account> localAcc = new ArrayList<>();
+        accounts.forEach(account -> {
+            if (Objects.equals(account.getCustomer().getEmail(), customerEmail)) localAcc.add(account);
+        });
+        return localAcc;
+    }
+
+    @Override
+    public ArrayList<Account> getCustomerAccountName(String customerName) {
+        ArrayList<Account> localAcc = new ArrayList<>();
+        accounts.forEach(account -> {
+            if (Objects.equals(account.getCustomer().getFull_name(), customerName)) localAcc.add(account);
+        });
+        return localAcc;
     }
 }

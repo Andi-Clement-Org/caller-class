@@ -2,6 +2,7 @@ import oop.abstraction.*;
 import oop.encapsulation.Supplier;
 import oop.inheritance.in2.Animal;
 import oop.inheritance.in2.Dog;
+import oop.inheritance.in2.Horse;
 import oop.recursion.Base;
 import oop.recursion.Factorial;
 
@@ -11,8 +12,11 @@ import java.util.Scanner;
 public class Caller {
 
     public static void main(String[] args) {
-        Supplier nSupplier = new Supplier();
-        nSupplier.show();
+//        Supplier nSupplier = new Supplier();
+//        nSupplier.show();
+
+        Caller nCaller = new Caller();
+        nCaller.horseCaller();
     }
 
     public void abstractCaller02() {
@@ -71,6 +75,11 @@ public class Caller {
 //        dog2.name = "Chukwudi";
         dog2.display();
         dog2.eat();
+    }
+
+    public void horseCaller() {
+        Animal horse = new Horse();
+        horse.eat();
     }
 
 }

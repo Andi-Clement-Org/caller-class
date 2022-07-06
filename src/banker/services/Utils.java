@@ -2,6 +2,7 @@ package banker.services;
 
 import java.util.Random;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -33,6 +34,12 @@ public class Utils {
     public static String pickEmailProvider() {
         Random random = new Random();
         return Constants.EMAIL_PROVIDERS[random.nextInt(Constants.EMAIL_PROVIDERS.length)];
+    }
+
+    public static boolean isEmailAddress(String emailAddress, String regexPattern) {
+        return Pattern.compile(regexPattern)
+                .matcher(emailAddress)
+                .matches();
     }
 
 }
