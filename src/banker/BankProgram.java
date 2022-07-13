@@ -3,18 +3,19 @@ package banker;
 import banker.models.Account;
 import banker.models.Bank;
 import banker.models.Customer;
+import banker.models.CustomerIdentity;
 import banker.services.Constants;
 import banker.services.Operations;
 import banker.services.Utils;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * //TODO
  * - Make the application interactive
  */
 
+@SuppressWarnings({"unused", "Duplicates"})
 public class BankProgram {
 
 
@@ -24,6 +25,8 @@ public class BankProgram {
 
     private Operations operations;
     private final Utils utils;
+
+    private CustomerIdentity gbCustomerIdentity;
 
     public BankProgram() {
         operations = new Operations();
@@ -39,15 +42,41 @@ public class BankProgram {
         System.out.printf("""
                 Hi, I am %s, I will be assisting you today.
                 What would you like to to do?
-                1.\tSeed Bank Data.
+                1.\tSeed Dummy Data (Bank & Customer).
                 2.\tCreate Customer Data.
-                3.\tCreate Account Information.
-                4.\tView Customer Information.
+                3.\tAccess Restricted Space.
                 0.\tTo Exit the program.
 
                 """, Constants.PROGRAM_ASSISTANTS_NAME);
         try {
             chosenOptions();
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            System.err.printf("You just encountered an error %s \n", ex.getMessage());
+            program();
+        }
+    }
+
+    private void restricted(boolean newVisitor) throws Exception {
+        if (newVisitor) {
+            System.out.println("Please Enter your name or Email address to access restricted space");
+            gbCustomerIdentity = getCustomer();
+        }
+
+        System.out.printf("""
+                Hi, I am %s, I will be assisting you today.
+                What would you like to to do?
+                1.\tCreate Account Information.
+                2.\tView Customer Information.
+                3.\tDeposit to Customer Account.
+                4.\tWithdraw from Customer Account.
+                5.\tTo Return.
+                0.\tTo Exit the program.
+
+                """, Constants.PROGRAM_ASSISTANTS_NAME);
+        try {
+            chosenOptionsRestricted();
         }
         catch (Exception ex) {
             ex.printStackTrace();
@@ -65,8 +94,21 @@ public class BankProgram {
                 program();
             }
             case 2 -> processCustomerCreation();
-            case 3 -> processAccountInfo();
-            case 4 -> viewCustomerInformation();
+            case 3 -> restricted(true);
+            default -> {
+            }
+        }
+    }
+
+    private void chosenOptionsRestricted() throws Exception {
+        int selectedOption = utils.scanner().nextInt();
+        switch (selectedOption) {
+            case 0 -> System.exit(0);
+            case 1 -> processAccountInfo();
+            case 2 -> viewCustomerInformation();
+            case 3 -> depositToCustomer();
+            case 4 -> withdrawFromCustomer();
+            case 5 -> program();
             default -> {
             }
         }
@@ -89,16 +131,6 @@ public class BankProgram {
     }
 
     private void processAccountInfo() throws Exception {
-        System.out.println("Please Enter your name or Email address to create an account" );
-        String identification = utils.scanner().nextLine();
-
-        Customer customerIdentity;
-        operations = new Operations(allCustomers, allBanks, accounts);
-
-        if (Utils.isEmailAddress(identification, Constants.EMAIL_REGEX)) customerIdentity = operations.findCustomerByEmail(identification);
-        else customerIdentity = operations.findCustomerByFullName(identification);
-
-        if (customerIdentity == null) throw new Exception("Cannot find this customer");
 
         System.out.println("Please Select banks from options below:");
 
@@ -108,14 +140,78 @@ public class BankProgram {
         System.out.println();
 
         int input = utils.scanner().nextInt();
+        operations = new Operations(allCustomers, allBanks, accounts);
         // verify if the bank index
-        createAccount(allBanks.get(input-1), customerIdentity);
+        accounts.add(createAccount(allBanks.get(input-1), gbCustomerIdentity.getCustomer()));
 
-        program();
+        restricted(false);
     }
 
     private void viewCustomerInformation() throws Exception {
-        System.out.println("Please Enter your name or Email address to get details" );
+
+        // find the account information using the customer object
+
+        ArrayList<Account> myAccounts = getAccountInfo();
+
+        for (Account myAccount : myAccounts) {
+            System.out.printf("Bank: %s. \nCustomer: %s. \nBalance: %f \n\n", myAccount.getBank().getName(), myAccount.getCustomer().getFull_name(), myAccount.getBalance());
+        }
+
+        restricted(false);
+
+    }
+
+    private void depositToCustomer() throws Exception {
+        System.out.println("Choose your Bank");
+        ArrayList<Account> myAccounts = getAccountInfo();
+        int acIndex = 1;
+        for (Account myAccount : myAccounts) {
+            System.out.printf("%d.\t%s. \n", acIndex++, myAccount.getBank().getName());
+        }
+
+        int bankIndex = utils.scanner().nextInt();
+        Bank selBank = getSelectedBank(bankIndex, myAccounts);
+
+        System.out.println("How much would you like to deposit");
+        int amountToDeposit = utils.scanner().nextInt();
+
+        Account getAccount = operations.getAccountByCustomer(gbCustomerIdentity.getCustomer(), selBank).orElse(null);
+
+        assert getAccount != null;
+        double updatedAmount = getAccount.getBalance() + amountToDeposit;
+
+        updateAccountInfo(selBank, updatedAmount);
+
+        restricted(false);
+    }
+
+    private void withdrawFromCustomer() throws Exception {
+        System.out.println("Choose your Bank");
+        ArrayList<Account> myAccounts = getAccountInfo();
+        int acIndex = 1;
+        for (Account myAccount : myAccounts) {
+            System.out.printf("%d.\t%s. \n", acIndex++, myAccount.getBank().getName());
+        }
+
+        int bankIndex = utils.scanner().nextInt();
+        Bank selBank = getSelectedBank(bankIndex, myAccounts);
+
+        System.out.println("How much would you like to withdraw");
+        int amountToDeposit = utils.scanner().nextInt();
+
+        Account getAccount = operations.getAccountByCustomer(gbCustomerIdentity.getCustomer(), selBank).orElse(null);
+
+        assert getAccount != null;
+
+        if (amountToDeposit > getAccount.getBalance()) throw new Exception("Insufficient Balance");
+
+        double updatedAmount = getAccount.getBalance() - amountToDeposit;
+        updateAccountInfo(selBank, updatedAmount);
+
+        restricted(false);
+    }
+
+    private CustomerIdentity getCustomer() throws Exception {
         String identification = utils.scanner().nextLine();
 
         Customer customerIdentity;
@@ -125,21 +221,15 @@ public class BankProgram {
         else customerIdentity = operations.findCustomerByFullName(identification);
 
         if (customerIdentity == null) throw new Exception("Cannot find this customer");
-
-        // find the account information using the customer object
-
-        ArrayList<Account> myAccounts;
-        if (Utils.isEmailAddress(identification, Constants.EMAIL_REGEX)) myAccounts = operations.getCustomerAccountEmail(identification);
-        else myAccounts = operations.getCustomerAccountName(identification);
-
-        for (Account myAccount : myAccounts) {
-            System.out.printf("Bank: %s. \nCustomer: %s. \nBalance: %f \n\n", myAccount.getBank().getName(), myAccount.getCustomer().getFull_name(), myAccount.getBalance());
-        }
-
-        System.exit(0);
-
+        return new CustomerIdentity(customerIdentity, identification);
     }
 
+    private ArrayList<Account> getAccountInfo() {
+        ArrayList<Account> myAccounts;
+        if (Utils.isEmailAddress(gbCustomerIdentity.getIdentity(), Constants.EMAIL_REGEX)) myAccounts = operations.getCustomerAccountEmail(gbCustomerIdentity.getIdentity());
+        else myAccounts = operations.getCustomerAccountName(gbCustomerIdentity.getIdentity());
+        return myAccounts;
+    }
 
     private void seed() throws Exception {
         addCustomers();
@@ -178,8 +268,22 @@ public class BankProgram {
         allBanks.add(bankSeven);
     }
 
-    public Account createAccount(Bank bank, Customer customer) {
+    private Account createAccount(Bank bank, Customer customer) throws Exception {
+        // check if customer exists in account
+        Account checkAccount = operations.getAccountByCustomer(customer, bank).orElse(null);
+        if (checkAccount != null) throw new Exception("Cannot create duplicate account for customer");
         return new Account(bank, customer,0);
+    }
+
+    private void updateAccountInfo(Bank bank, double amount) {
+        accounts.forEach(account -> {
+            if (account.getCustomer().equals(gbCustomerIdentity.getCustomer()) && account.getBank().equals(bank)) account.setBalance(amount);
+        });
+    }
+
+    private Bank getSelectedBank(int index, ArrayList<Account> accounts) {
+        int cIndex = index - 1;
+        return (accounts.size() > cIndex) ? accounts.get(cIndex).getBank() : null;
     }
 
     private Customer findCustomer(String findBy, String findValue) {

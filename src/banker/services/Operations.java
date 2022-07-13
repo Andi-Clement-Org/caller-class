@@ -6,7 +6,7 @@ import banker.models.Customer;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
 
 public class Operations extends Skeleton {
 
@@ -108,5 +108,14 @@ public class Operations extends Skeleton {
             if (Objects.equals(account.getCustomer().getFull_name(), customerName)) localAcc.add(account);
         });
         return localAcc;
+    }
+
+    @Override
+    public Optional<Account> getAccountByCustomer(Customer customer, Bank bank) {
+        ArrayList<Account> localAcc = new ArrayList<>();
+        accounts.forEach(account -> {
+            if (Objects.equals(account.getCustomer(), customer) && Objects.equals(account.getBank(), bank)) localAcc.add(account);
+        });
+        return localAcc.size() <= 0 ? Optional.empty() : Optional.ofNullable(localAcc.get(0));
     }
 }

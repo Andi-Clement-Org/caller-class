@@ -1,9 +1,14 @@
 package banker.services;
 
+import banker.models.Account;
+import banker.models.Bank;
+
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("unused")
 public class Utils {
 
     public Scanner scanner() {
